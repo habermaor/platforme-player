@@ -1,4 +1,19 @@
-﻿var data = require('./data');
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+
+
+
+module.exports = 
+    {
+        assets: {
+            background: { key: "sky", url: "assets/sky.png" },
+            ground: { key: "ground", url: "assets/platform.png" },
+            object: { key: "star", url: "assets/star.png" },
+            hero: { key: "dude", url: "assets/dude.png", frameWidth: 32, frameHeight:48 }
+        }
+    }
+
+},{}],2:[function(require,module,exports){
+var data = require('./data');
 var game = new Phaser.Game(800, 600, Phaser.AUTO, 'game', { preload: preload, create: create, update: update });
 
 function preload() {
@@ -144,3 +159,5 @@ function collectStar (player, star) {
 
 }
 
+
+},{"./data":1}]},{},[2]);
