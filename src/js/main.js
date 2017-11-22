@@ -1,13 +1,19 @@
 ﻿var data = require('./data');
-var game = new Phaser.Game(800, 600, Phaser.AUTO, 'game', { preload: preload, create: create, update: update });
+var game = new Phaser.Game(data.gameConfiguration.gameWidth, data.gameConfiguration.gameHeight, Phaser.AUTO, 'game', { preload: preload, create: create, update: update });
 
 function preload() {
 
 
-    game.load.image(data.assets.background.key, data.assets.background.url);
+   // game.load.image(data.assets.background.key, data.assets.background.url);
     game.load.image(data.assets.ground.key, data.assets.ground.url);
     game.load.image(data.assets.object.key, data.assets.object.url);
     game.load.spritesheet(data.assets.hero.key, data.assets.hero.url, data.assets.hero.frameWidth, data.assets.hero.frameHeight);
+
+   // game.load.baseURL = 'http://examples.phaser.io/assets/';
+    game.load.crossOrigin = 'anonymous';
+
+    game.load.image(data.assets.background.key, data.assets.background.url)
+
 
 }
 
@@ -24,8 +30,12 @@ function create() {
     //  We're going to be using physics, so enable the Arcade Physics system
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
-    //  A simple background for our game
-    game.add.sprite(0, 0, data.assets.background.key);
+   
+
+    game.add.tileSprite(0, 0, game.width, game.height, data.assets.background.key)
+
+
+
 
     //  The platforms group contains the ground and the 2 ledges we can jump on
     platforms = game.add.group();
