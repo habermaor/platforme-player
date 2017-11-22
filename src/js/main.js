@@ -13,12 +13,13 @@ function preload() {
     game.load.crossOrigin = 'anonymous';
 
     game.load.image(data.assets.background.key, data.assets.background.url)
+    game.load.tilemap('level1', 'assets/levelExample.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.image('tiles-1', 'assets/tiles-1.png');
 
 
 }
 
 var player;
-var platforms;
 var cursors;
 
 var stars;
@@ -34,33 +35,34 @@ function create() {
 
     game.add.tileSprite(0, 0, game.width, game.height, data.assets.background.key)
 
+    map = game.add.tilemap('level1');
+
+    map.addTilesetImage('tiles-1');
+
+    map.setCollisionByExclusion([13, 14, 15, 16, 46, 47, 48, 49, 50, 51]);
+
+    layer = map.createLayer('Tile Layer 1');
+
+    //  Un-comment this on to see the collision tiles
+    // layer.debug = true;
+
+    layer.resizeWorld();
 
 
 
-    //  The platforms group contains the ground and the 2 ledges we can jump on
-    platforms = game.add.group();
 
-    //  We will enable physics for any object that is created in this group
-    platforms.enableBody = true;
 
-    // Here we create the ground.
-    var ground = platforms.create(0, game.world.height - 64, data.assets.ground.key);
 
-    //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
-    ground.scale.setTo(2, 2);
+   
 
-    //  This stops it from falling away when you jump on it
-    ground.body.immovable = true;
 
-    //  Now let's create two ledges
-    var ledge = platforms.create(400, 400, data.assets.ground.key);
-    ledge.body.immovable = true;
 
-    ledge = platforms.create(-150, 250, data.assets.ground.key);
-    ledge.body.immovable = true;
+ 
+
+   
 
     // The player and its settings
-    player = game.add.sprite(32, game.world.height - 150, data.assets.hero.key);
+    player = game.add.sprite(32, 0, data.assets.hero.key);
 
     //  We need to enable physics on the player
     game.physics.arcade.enable(player);
@@ -104,9 +106,8 @@ function create() {
 function update() {
 
     //  Collide the player and the stars with the platforms
-    game.physics.arcade.collide(player, platforms);
-    game.physics.arcade.collide(stars, platforms);
-
+    game.physics.arcade.collide(player, layer);
+    game.physics.arcade.collide(stars, layer);
     //  Checks to see if the player overlaps with any of the stars, if he does call the collectStar function
     game.physics.arcade.overlap(player, stars, collectStar, null, this);
 
@@ -136,7 +137,7 @@ function update() {
     }
     
     //  Allow the player to jump if they are touching the ground.
-    if (cursors.up.isDown && player.body.touching.down)
+    if (cursors.up.isDown  && player.body.onFloor())
     {
         player.body.velocity.y = -350;
     }
