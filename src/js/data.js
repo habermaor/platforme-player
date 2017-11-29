@@ -9,7 +9,17 @@ module.exports =
             background: { key: "sky", url: "assets/sky.png" },
             ground: { key: "ground", url: "assets/platform.png" },
             object: { key: "star", url: "assets/me.png" },
-            hero: { key: "dude", url: "assets/yuval.png", frameWidth: 48, frameHeight: 85 }
+            bullet: {
+                key: "bullet", url: "assets/lips.png", audio: {
+                    firing: { key: "bullet_firing", url: "assets/muah.m4a" },
+                    hit: { key: "bullet_hit", url: "assets/huhu.m4a" }
+                }
+            },
+            enemy: {
+                key: "enemy", url: "assets/snap_spritesheet.png", frameWidth: 64, frameHeight: 64
+               
+            },
+            hero: { key: "hero", url: "assets/yuval_spritesheet.png", frameWidth: 64, frameHeight: 64 }
         },
         level1:
             {
