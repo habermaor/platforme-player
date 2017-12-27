@@ -1,8 +1,8 @@
 ﻿var data = require('./data');
 var game = new Phaser.Game(data.gameConfiguration.gameWidth, data.gameConfiguration.gameHeight, Phaser.AUTO, 'game', { preload: preload, create: create, update: update });
-
 function preload() {
 
+    game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL; game.scale.pageAlignHorizontally = true; game.scale.pageAlignVertically = false;
 
     game.load.image(data.assets.ground.key, data.assets.ground.url);
     game.load.image(data.assets.object.key, data.assets.object.url);
@@ -16,8 +16,10 @@ function preload() {
     game.load.crossOrigin = 'anonymous';
 
     game.load.image(data.assets.background.key, data.assets.background.url)
-    game.load.tilemap('level1', 'assets/levelExample.json', null, Phaser.Tilemap.TILED_JSON);
-    game.load.image('tiles-1', 'assets/tiles-1.png');
+    game.load.tilemap(data.assets.tilemap.key, data.assets.tilemap.url, null, Phaser.Tilemap.TILED_JSON);
+    game.load.image(data.assets.tileImages[0].key, data.assets.tileImages[0].url);
+
+    game.load.atlas('dpad', 'assets/dpad.png', 'assets/dpad.json');
 
 
 }
@@ -36,20 +38,47 @@ var layer;
 var score = 0;
 var scoreText;
 
+
+this.pad;
+
+this.stick;
+
+this.buttonA;
+this.buttonB;
+this.buttonC;
+
+
 function create() {
     game.physics.startSystem(Phaser.Physics.ARCADE);
     game.add.tileSprite(0, 0, game.width, game.height, data.assets.background.key)
-    map = game.add.tilemap('level1');
-    map.addTilesetImage('tiles-1');
+    map = game.add.tilemap(data.assets.tilemap.key);
+    map.addTilesetImage(data.assets.tileImages[0].key);
     map.setCollisionByExclusion([13, 14, 15, 16, 46, 47, 48, 49, 50, 51]);
+    //joystick
+    this.pad = this.game.plugins.add(Phaser.VirtualJoystick);
 
-  
+    this.stick = this.pad.addDPad(0, 0, 200, 'dpad');
+    this.stick.alignBottomLeft(0);
+
+    this.buttonA = this.pad.addButton(500, 700, 'dpad', 'button1-up', 'button1-down');
+    this.buttonA.onDown.add(shootBullet, this);
+
+    this.buttonB = this.pad.addButton(700, 700, 'dpad', 'button2-up', 'button2-down');
+    this.buttonB.onDown.add(jump, this);
+
+
+
+
+
+
+
+
 
     layer = map.createLayer('Tile Layer 1');
     //  Un-comment this on to see the collision tiles
     //layer.debug = true;
     layer.resizeWorld();
-   
+
 
     player = game.add.sprite(32, 0, data.assets.hero.key);
     game.physics.arcade.enable(player);
@@ -60,11 +89,10 @@ function create() {
     //player.animations.add('right', [5, 6, 7, 8], 10, true);
     player.animations.add('left', [1]);
     player.animations.add('right', [2]);
-  
+
     stars = game.add.group();
     stars.enableBody = true;
-    for (var i = 0; i < 12; i++)
-    {
+    for (var i = 0; i < 12; i++) {
         var star = stars.create(i * 70, 0, data.assets.object.key);
         star.body.gravity.y = 300;
         star.body.bounce.y = 0.7 + Math.random() * 0.2;
@@ -72,25 +100,23 @@ function create() {
     enemies = game.add.group();
     enemies.enableBody = true;
     for (var i = 0; i < 12; i++) {
-       
+
         var enemy = new Enemy(game, i * 70, 0, 0);
         enemies.add(enemy);
-     
+
     }
 
     bullets = game.add.group();
     bullets.enableBody = true;
-    spaceBar = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-    spaceBar.onDown.add(shootBullet, this);
+
 
     scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
     firing_sound = game.add.audio(data.assets.bullet.audio.firing.key);
     hitting_sound = game.add.audio(data.assets.bullet.audio.hit.key);
 
 
-    cursors = game.input.keyboard.createCursorKeys();
-    spaceBar = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 }
+
 
 function update() {
 
@@ -98,41 +124,63 @@ function update() {
     game.physics.arcade.collide(stars, layer);
     game.physics.arcade.collide(enemies, layer);
     game.physics.arcade.overlap(player, stars, collectStar, null, this);
-
-    var testTile = map.getTileWorldXY(0, 0);
-    if(testTile){console.log(testTile ,player, map, layer )}
     player.body.velocity.x = 0;
+    if (this.stick.isDown) {
 
-    if (cursors.left.isDown)
-    {
-        player.body.velocity.x = -150;
-        player.animations.play('left');
-        direction = -1;
+        if (this.stick.direction === Phaser.LEFT) {
+            player.body.velocity.x = -150;
+            player.animations.play('left');
+            direction = -1;
+        }
+        else if (this.stick.direction === Phaser.RIGHT) {
+            player.body.velocity.x = 150;
+            player.animations.play('right');
+            direction = 1;
+        }
     }
-    else if (cursors.right.isDown)
-    {
-        player.body.velocity.x = 150;
-        player.animations.play('right');
-        direction = 1;
-    }
-    else
-    {
+    else {
         player.animations.stop();
         player.frame = 4;
     }
-    
-    if (cursors.up.isDown  && player.body.onFloor())
-    {
-        player.body.velocity.y = -350;
-    }
 
-  
+
+    //if (cursors.left.isDown)
+    //{
+    //    player.body.velocity.x = -150;
+    //    player.animations.play('left');
+    //    direction = -1;
+    //}
+    //else if (cursors.right.isDown)
+    //{
+    //    player.body.velocity.x = 150;
+    //    player.animations.play('right');
+    //    direction = 1;
+    //}
+    //else
+    //{
+    //    player.animations.stop();
+    //    player.frame = 4;
+    //}
+
+    //if (cursors.up.isDown  && player.body.onFloor())
+    //{
+    //    player.body.velocity.y = -350;
+    //}
+
+
 
 
 
 }
 
-function collectStar (player, star) {
+
+function jump() {
+    if (player.body.onFloor()) {
+        player.body.velocity.y = -350;
+    }
+}
+
+function collectStar(player, star) {
     star.kill();
     score += 10;
     scoreText.text = 'Score: ' + score;
@@ -155,18 +203,18 @@ Bullet.prototype = Object.create(Phaser.Sprite.prototype);
 Bullet.prototype.constructor = Bullet;
 
 Bullet.prototype.update = function () {
+    //TODO - find out why this is no longer working after upgrading the Phaser
+    //game.physics.arcade.overlap(this, stars, function (bullet, star) {
+    //    bullet.destroy();
+    //    star.destroy();
+    //    hitting_sound.play();
+    //    score += 1;
+    //    scoreText.text = 'Score: ' + score;
+    //});
 
-    game.physics.arcade.overlap(this, stars, function (bullet, star) {
-        bullet.destroy();
-        star.destroy();
-        hitting_sound.play();
-        score += 1;
-        scoreText.text = 'Score: ' + score;
-    });
-
-    game.physics.arcade.overlap(this, layer, function (bullet) {
-        bullet.destroy();
-    });
+    //game.physics.arcade.overlap(this, layer, function (bullet) {
+    //    bullet.destroy();
+    //});
 
     this.body.velocity.y = 0;
     this.body.velocity.x = this.xSpeed;
@@ -200,10 +248,10 @@ Enemy.prototype.update = function () {
         // if enemy is moving to the left, 
         // check if its position exceeds the left-most point of the platform
 
-       // console.log(map.getTileWorldXY(enemy.body.x, enemy.body.y));
+        // console.log(map.getTileWorldXY(enemy.body.x, enemy.body.y));
 
 
-      //  console.log(layer,enemy);
+        //  console.log(layer,enemy);
         if (enemy.body.velocity.x > 0 && enemy.position.x > layer.x + (layer.width - enemy.width) ||
                 enemy.body.velocity.x < 0 && enemy.x < layer.x) {
             enemy.body.velocity.x *= -1;

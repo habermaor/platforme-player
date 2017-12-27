@@ -20,6 +20,7 @@
   "tileheight": 16,
   "tilesets": [
     {
+
       "firstgid": 1,
       "image": "tiles-1.png",
       "imageheight": 64,
@@ -34,6 +35,7 @@
       "tilewidth": 16
     }
   ],
+   "type":"map",
   "tilewidth": 16,
   "version": 1,
   "width": 64
