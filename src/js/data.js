@@ -3,7 +3,7 @@ module.exports =
     {
         gameConfiguration: {
             gameWidth: 2400,
-            gameHeight: 800
+            gameHeight: "100%"
         },
         assets: {
             background: { key: "sky", url: "assets/sky.png" },

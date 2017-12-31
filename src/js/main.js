@@ -2,7 +2,8 @@
 var game = new Phaser.Game(data.gameConfiguration.gameWidth, data.gameConfiguration.gameHeight, Phaser.AUTO, 'game', { preload: preload, create: create, update: update });
 function preload() {
 
-    game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL; game.scale.pageAlignHorizontally = true; game.scale.pageAlignVertically = false;
+   // game.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
+   // game.scale.pageAlignHorizontally = true; game.scale.pageAlignVertically = false;
 
     game.load.image(data.assets.ground.key, data.assets.ground.url);
     game.load.image(data.assets.object.key, data.assets.object.url);
@@ -45,7 +46,6 @@ this.stick;
 
 this.buttonA;
 this.buttonB;
-this.buttonC;
 
 
 function create() {
@@ -60,10 +60,10 @@ function create() {
     this.stick = this.pad.addDPad(0, 0, 200, 'dpad');
     this.stick.alignBottomLeft(0);
 
-    this.buttonA = this.pad.addButton(500, 700, 'dpad', 'button1-up', 'button1-down');
+    this.buttonA = this.pad.addButton(500, game.height - 100, 'dpad', 'button1-up', 'button1-down');
     this.buttonA.onDown.add(shootBullet, this);
 
-    this.buttonB = this.pad.addButton(700, 700, 'dpad', 'button2-up', 'button2-down');
+    this.buttonB = this.pad.addButton(700, game.height - 100, 'dpad', 'button2-up', 'button2-down');
     this.buttonB.onDown.add(jump, this);
 
 
