@@ -193,18 +193,14 @@ Bullet.prototype = Object.create(Phaser.Sprite.prototype);
 Bullet.prototype.constructor = Bullet;
 
 Bullet.prototype.update = function () {
-    //TODO - find out why this is no longer working after upgrading the Phaser
-    //game.physics.arcade.overlap(this, stars, function (bullet, star) {
-    //    bullet.destroy();
-    //    star.destroy();
-    //    hitting_sound.play();
-    //    score += 1;
-    //    scoreText.text = 'Score: ' + score;
-    //});
+    game.physics.arcade.overlap(this, enemies, function (bullet, enemy) {
+        bullets.remove(bullet);
+        enemies.remove(enemy);
+        hitting_sound.play();
+        score += 1;
+        scoreText.text = 'score: ' + score;
+    });
 
-    //game.physics.arcade.overlap(this, layer, function (bullet) {
-    //    bullet.destroy();
-    //});
 
     this.body.velocity.y = 0;
     this.body.velocity.x = this.xSpeed;
@@ -216,7 +212,6 @@ Bullet.prototype.update = function () {
 
 Enemy = function (game, x, y, destination) {
     Phaser.Sprite.call(this, game, x, y, data.assets.enemy.key, 64, 64);
-    this.scale.setTo(0.5, 0.5);
     game.physics.enable(this, Phaser.Physics.ARCADE);
     this.collideWorldBounds = true;
     this.enableBody = true;
@@ -249,9 +244,9 @@ Enemy.prototype.update = function () {
         }
     });
 
-    game.physics.arcade.collide(this, enemies, function (enemy, enemies) {
-        enemy.body.velocity.x *= -1.0001;
-    });
+    //game.physics.arcade.collide(this, enemies, function (enemy, enemies) {
+    //    enemy.body.velocity.x *= -1.0001;
+    //});
 
 };
 
