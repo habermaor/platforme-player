@@ -17,12 +17,12 @@ module.exports =
             },
             enemy: {
                 key: "enemy", url: "assets/snap_spritesheet.png", frameWidth: 64, frameHeight: 64
-               
+
             },
             hero: { key: "hero", url: "assets/yuval_spritesheet.png", frameWidth: 64, frameHeight: 64 },
-            tilemap: { key: "tilemap", url: "assets/levelExample2.json" },
+            tilemap: { key: "tilemap", url: "assets/simple.json", width: 128, height: 32/*TODO - put all the tilemap data here, instead of external file*/ },
             tileImages: [{ key: "tiles-1", url: "assets/tiles-1.png" }]
         },
-       
+
     }
 

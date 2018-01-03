@@ -1,9 +1,10 @@
 ﻿var data = require('./data');
-var game = new Phaser.Game(data.gameConfiguration.gameWidth, data.gameConfiguration.gameHeight, Phaser.AUTO, 'game', { preload: preload, create: create, update: update });
+var game = new Phaser.Game(window.innerWidth, window.innerHeight, Phaser.CANVAS, 'game', { preload: preload, create: create, update: update });
+
+
 function preload() {
 
-   // game.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
-   // game.scale.pageAlignHorizontally = true; game.scale.pageAlignVertically = false;
+    
 
     game.load.image(data.assets.ground.key, data.assets.ground.url);
     game.load.image(data.assets.object.key, data.assets.object.url);
@@ -28,7 +29,6 @@ var firing_sound;
 var hitting_sound;
 
 var player;
-var cursors;
 var bullets;
 var enemies;
 var spaceBar;
@@ -49,10 +49,20 @@ this.buttonB;
 
 
 function create() {
+
+    game.scale.forceOrientation(true);
+    game.scale.pageAlignHorizontally = true;
     game.physics.startSystem(Phaser.Physics.ARCADE);
-    game.add.tileSprite(0, 0, game.width, game.height, data.assets.background.key)
+
+
+
+
+    game.add.tileSprite(0, 0, (data.assets.tilemap.width / data.assets.tilemap.height) * window.innerHeight * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio, data.assets.background.key)
     map = game.add.tilemap(data.assets.tilemap.key);
+    game.world.setBounds(0, 0, (data.assets.tilemap.width / data.assets.tilemap.height) * window.innerHeight * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio);
+
     map.addTilesetImage(data.assets.tileImages[0].key);
+
     map.setCollisionByExclusion([13, 14, 15, 16, 46, 47, 48, 49, 50, 51]);
     //joystick
     this.pad = this.game.plugins.add(Phaser.VirtualJoystick);
@@ -60,10 +70,10 @@ function create() {
     this.stick = this.pad.addDPad(0, 0, 200, 'dpad');
     this.stick.alignBottomLeft(0);
 
-    this.buttonA = this.pad.addButton(500, game.height - 100, 'dpad', 'button1-up', 'button1-down');
+    this.buttonA = this.pad.addButton(window.innerWidth - 100, window.innerHeight - 100, 'dpad', 'button1-up', 'button1-down');
     this.buttonA.onDown.add(shootBullet, this);
 
-    this.buttonB = this.pad.addButton(700, game.height - 100, 'dpad', 'button2-up', 'button2-down');
+    this.buttonB = this.pad.addButton(window.innerWidth - 250, window.innerHeight - 100, 'dpad', 'button2-up', 'button2-down');
     this.buttonB.onDown.add(jump, this);
 
 
@@ -75,18 +85,24 @@ function create() {
 
 
     layer = map.createLayer('Tile Layer 1');
-    //  Un-comment this on to see the collision tiles
-    //layer.debug = true;
     layer.resizeWorld();
 
 
     player = game.add.sprite(32, 0, data.assets.hero.key);
-    game.physics.arcade.enable(player);
+   game.physics.arcade.enable(player);
+
+  
+    player.anchor.setTo(0, 0);
+    game.camera.follow(player);
+    game.camera.follow(player, Phaser.Camera.FOLLOW_PLATFORMER);
+
+
+
     player.body.bounce.y = 0.2;
     player.body.gravity.y = 300;
     player.body.collideWorldBounds = true;
-    //player.animations.add('left', [0, 1, 2, 3], 10, true);
-    //player.animations.add('right', [5, 6, 7, 8], 10, true);
+   
+
     player.animations.add('left', [1]);
     player.animations.add('right', [2]);
 
@@ -97,6 +113,7 @@ function create() {
         star.body.gravity.y = 300;
         star.body.bounce.y = 0.7 + Math.random() * 0.2;
     }
+
     enemies = game.add.group();
     enemies.enableBody = true;
     for (var i = 0; i < 12; i++) {
@@ -137,39 +154,12 @@ function update() {
             player.animations.play('right');
             direction = 1;
         }
+      
     }
     else {
         player.animations.stop();
         player.frame = 4;
     }
-
-
-    //if (cursors.left.isDown)
-    //{
-    //    player.body.velocity.x = -150;
-    //    player.animations.play('left');
-    //    direction = -1;
-    //}
-    //else if (cursors.right.isDown)
-    //{
-    //    player.body.velocity.x = 150;
-    //    player.animations.play('right');
-    //    direction = 1;
-    //}
-    //else
-    //{
-    //    player.animations.stop();
-    //    player.frame = 4;
-    //}
-
-    //if (cursors.up.isDown  && player.body.onFloor())
-    //{
-    //    player.body.velocity.y = -350;
-    //}
-
-
-
-
 
 }
 
@@ -248,10 +238,6 @@ Enemy.prototype.update = function () {
         // if enemy is moving to the left, 
         // check if its position exceeds the left-most point of the platform
 
-        // console.log(map.getTileWorldXY(enemy.body.x, enemy.body.y));
-
-
-        //  console.log(layer,enemy);
         if (enemy.body.velocity.x > 0 && enemy.position.x > layer.x + (layer.width - enemy.width) ||
                 enemy.body.velocity.x < 0 && enemy.x < layer.x) {
             enemy.body.velocity.x *= -1;
@@ -268,3 +254,4 @@ Enemy.prototype.update = function () {
     });
 
 };
+
