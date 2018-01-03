@@ -1,11 +1,11 @@
 ﻿var data = require('./data');
+var winState = require('./win');
 var game = new Phaser.Game(window.innerWidth, window.innerHeight, Phaser.CANVAS, 'game', { preload: preload, create: create, update: update });
-
+game.state.add('win', winState);
 
 function preload() {
 
     
-
     game.load.image(data.assets.ground.key, data.assets.ground.url);
     game.load.image(data.assets.object.key, data.assets.object.url);
     game.load.image(data.assets.bullet.key, data.assets.bullet.url);
@@ -49,21 +49,20 @@ this.buttonB;
 
 
 function create() {
-
     game.scale.forceOrientation(true);
     game.scale.pageAlignHorizontally = true;
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
 
 
-
+   
     game.add.tileSprite(0, 0, (data.assets.tilemap.width / data.assets.tilemap.height) * window.innerHeight * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio, data.assets.background.key)
     map = game.add.tilemap(data.assets.tilemap.key);
     game.world.setBounds(0, 0, (data.assets.tilemap.width / data.assets.tilemap.height) * window.innerHeight * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio);
 
     map.addTilesetImage(data.assets.tileImages[0].key);
 
-    map.setCollisionByExclusion([13, 14, 15, 16, 46, 47, 48, 49, 50, 51]);
+    map.setCollisionByExclusion([]);
     //joystick
     this.pad = this.game.plugins.add(Phaser.VirtualJoystick);
 
@@ -131,13 +130,13 @@ function create() {
     firing_sound = game.add.audio(data.assets.bullet.audio.firing.key);
     hitting_sound = game.add.audio(data.assets.bullet.audio.hit.key);
 
-
+  
 }
 
 
 function update() {
 
-    game.physics.arcade.collide(player, layer);
+    game.physics.arcade.collide(player, layer, collideWithLayer, null , this);
     game.physics.arcade.collide(stars, layer);
     game.physics.arcade.collide(enemies, layer);
     game.physics.arcade.overlap(player, stars, collectStar, null, this);
@@ -163,7 +162,10 @@ function update() {
 
 }
 
-
+function collideWithLayer(player, tile) {
+    if(tile.x == 124)
+        game.state.start('win');
+}
 function jump() {
     if (player.body.onFloor()) {
         player.body.velocity.y = -350;
