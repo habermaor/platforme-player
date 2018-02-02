@@ -12,7 +12,10 @@ function preload() {
     game.load.image(data.assets.bullet.key, data.assets.bullet.url);
     game.load.image(data.assets.endStage.key, data.assets.endStage.url);
     game.load.spritesheet(data.assets.hero.key, data.assets.hero.url, data.assets.hero.frameWidth, data.assets.hero.frameHeight);
-    game.load.spritesheet(data.assets.enemy.key, data.assets.enemy.url, data.assets.enemy.frameWidth, data.assets.enemy.frameHeight);
+    data.assets.enemies.forEach(function (enemy) {
+        game.load.spritesheet(enemy.key, enemy.url,enemy.frameWidth, enemy.frameHeight);
+    });
+    game.load.spritesheet(data.assets.enemies[0].key, data.assets.enemies[0].url);
     game.load.audio(data.assets.bullet.audio.firing.key, data.assets.bullet.audio.firing.url);
     game.load.audio(data.assets.bullet.audio.hit.key, data.assets.bullet.audio.hit.url);
     game.load.audio(data.assets.soundtrack.key, data.assets.soundtrack.url);
@@ -63,7 +66,7 @@ function create() {
     soundtrack.loopFull(0.2);
 
 
-   // game.add.tileSprite(0, 0, (data.assets.tilemap.width / data.assets.tilemap.height) * window.innerHeight * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio, data.assets.background.key).alpha = 0.6;
+    // game.add.tileSprite(0, 0, (data.assets.tilemap.width / data.assets.tilemap.height) * window.innerHeight * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio, data.assets.background.key).alpha = 0.6;
     game.add.tileSprite(0, 0, 1664, 1664, data.assets.background.key).alpha = 0.6;
 
     map = game.add.tilemap(data.assets.tilemap.key);
@@ -71,7 +74,7 @@ function create() {
     endPoint = game.add.sprite(data.assets.endStage.x, data.assets.endStage.y, data.assets.endStage.key);
     endPoint.scale.setTo(0.5);
     endPoint.enableBody = true;
-  
+
 
 
     map.addTilesetImage(data.assets.tileImages[0].key);
@@ -117,7 +120,7 @@ function create() {
     player.body.collideWorldBounds = true;
 
 
-    player.animations.add('walk', getFramesArray(data.assets.hero.animations.walk.from, data.assets.hero.animations.walk.to),30);
+    player.animations.add('walk', getFramesArray(data.assets.hero.animations.walk.from, data.assets.hero.animations.walk.to), 30);
     player.animations.add('idle', getFramesArray(data.assets.hero.animations.idle.from, data.assets.hero.animations.idle.to), 30);
     player.animations.add('jump', getFramesArray(data.assets.hero.animations.jump.from, data.assets.hero.animations.jump.to), 30);
 
@@ -125,39 +128,30 @@ function create() {
     stars.enableBody = true;
 
     data.assets.objects.forEach(function (object) {
-        for (var i = 0; i < object.amount; i++) {
-            var star = stars.create(Math.random() * layer.map.widthInPixels,Math.min(Math.random() * layer.map.heightInPixels,1450)/*TODO - write function that checks if it overlap a tile*/, object.key);
-           // star.body.gravity.y = 300;
-           // star.body.bounce.y = 0.7 + Math.random() * 0.2;
-
-
-
-
+        object.positions.forEach(function (position) {
+            var star = stars.create(position.x, position.y, object.key);
             star.anchor.set(0.5, 0);
-
             var tween = game.add.tween(star.scale).to({ x: -1 }, 1000, "Linear", true, 0, -1, true);
             tween.onLoop.add(function () {
                 star.frameName = (star.frameName === 'front') ? 'back' : 'front';
             }, this);
-        }
+        });
     });
-
-
     enemies = game.add.group();
     enemies.enableBody = true;
 
-    for (var i = 0; i < data.assets.enemy.amount; i++) {
-
-        var enemy = new Enemy(game, Math.random() * layer.map.widthInPixels, (i+1)*350, 0);/*TODO - write something generic, or take from json*/
-        enemies.add(enemy);
-
-    }
-    game.time.events.loop(Phaser.Timer.SECOND*2, turnRandomEnemy, this);
+    data.assets.enemies.forEach(function (bad) {
+        bad.positions.forEach(function (position) {
+            var enemy = new Enemy(game, position.x, position.y, bad.key);
+            enemies.add(enemy);
+        });
+    });
+    game.time.events.loop(Phaser.Timer.SECOND * 2, turnRandomEnemy, this);
     bullets = game.add.group();
     bullets.enableBody = true;
 
 
-    scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
+  //  scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
     firing_sound = game.add.audio(data.assets.bullet.audio.firing.key);
     hitting_sound = game.add.audio(data.assets.bullet.audio.hit.key);
     collecting_sound = game.add.audio(data.assets.objects[0].audio.collect.key);
@@ -177,7 +171,7 @@ function update() {
 
         if (this.stick.direction === Phaser.LEFT) {
             player.body.velocity.x = -data.assets.hero.speed;
-
+           
             player.animations.play('walk');
             player.scale.x = -1 * (Math.abs(player.scale.x));
             direction = -1;
@@ -186,7 +180,6 @@ function update() {
             player.body.velocity.x = data.assets.hero.speed;
             player.animations.play('walk');
             player.scale.x = Math.abs(player.scale.x);
-            //  player.scale.x *= -1;
             direction = 1;
         }
 
@@ -194,7 +187,7 @@ function update() {
     else {
         if (player.body.onFloor())
             player.animations.play('idle');
-        // player.frame = 4;
+       
     }
 
 }
@@ -223,12 +216,10 @@ function turnRandomEnemy() {
         else if (enemy.x > enemy.rangeRight && baddieMover == 1) {
             baddieMover = 2; // enemy is too far right, so move it left       
         } if (baddieMover == 1) {
-            enemy.body.velocity.x = data.assets.enemy.speed;
-            // enemy.animations.play('right');	
+            enemy.body.velocity.x = data.assets.enemies[0].speed;//TODO - refrence to the relevant enemy 
         }
         else if (baddieMover == 2) {
-            enemy.body.velocity.x = -data.assets.enemy.speed;
-            // enemy.animations.play('left');	
+            enemy.body.velocity.x = -data.assets.enemies[0].speed;
         }
         else {
             enemy.body.velocity.x = 0;
@@ -241,7 +232,7 @@ function collectStar(player, star) {
     star.kill();
     collecting_sound.play();
     score += 10;
-    scoreText.text = 'Score: ' + score;
+    //scoreText.text = 'Score: ' + score;
 }
 
 function shootBullet() {
@@ -266,17 +257,12 @@ Bullet.prototype.update = function () {
         enemy.isDead = true;
         enemy.body.velocity.x = 0;
 
-        enemy.animations.play('die', 10, false, true); 
-        enemy.events.onAnimationComplete.add(function () { enemies.remove(enemy); });
-       // enemy.animations.play('die');
-       // enemy.kill();
-       // enemy.destroy();
-       // enemies.remove(enemy);
+        enemy.animations.play('die', 10, false, true).onComplete.add(function () { enemies.remove(enemy); });
         hitting_sound.play();
         score += 1;
-        scoreText.text = 'score: ' + score;
+      //  scoreText.text = 'score: ' + score;
 
-       
+
 
 
     });
@@ -290,31 +276,33 @@ Bullet.prototype.update = function () {
 
 };
 
-Enemy = function (game, x, y, destination) {
-    Phaser.Sprite.call(this, game, x, y, data.assets.enemy.key, 64, 64);
+Enemy = function (game, x, y, key) {
+   
+    Phaser.Sprite.call(this, game, x, y, key, 64, 64);
     game.physics.enable(this, Phaser.Physics.ARCADE);
     this.anchor.setTo(.5, .5);
     this.scale.setTo(0.3, 0.3);
     this.collideWorldBounds = true;
     this.enableBody = true;
-
     this.animations.add('die', getFramesArray(0, 9), 10);
     this.animations.add('idle', getFramesArray(10, 19), 10);
     this.animations.add('walk', getFramesArray(20, 29), 10);
-
+    this.animations.currentFrame = 0;
 
     this.body.gravity.y = 800;
     this.body.bounce.y = 0;
     this.body.bounce.x = 1;
     this.body.collideWorldBounds = true;
-   // this.body.velocity.x = 30 + Math.random() * 50;
-   
+    // this.body.velocity.x = 30 + Math.random() * 50;
+
 };
+
 Enemy.prototype = Object.create(Phaser.Sprite.prototype);
 Enemy.prototype.constructor = Enemy;
 Enemy.prototype.update = function () {
-    if (this.body.velocity.x == 0 && !this.isDead)
+    if (this.body.velocity.x == 0 && !this.isDead) {
         this.animations.play('idle');
+    }
     else if (this.body.velocity.x < 0) {
         this.animations.play('walk');
         this.scale.x = -1 * (Math.abs(this.scale.x));
@@ -324,7 +312,8 @@ Enemy.prototype.update = function () {
         this.animations.play('walk');
         this.scale.x = Math.abs(this.scale.x);
     }
-   
+    
+
 };
 
 

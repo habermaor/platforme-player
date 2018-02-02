@@ -7,28 +7,29 @@ module.exports =
             soundtrack: { key: "soundtrack", url: "assets/mc_game/awesomesauce.mp3" },
             objects: [
                 {
-                    key: "star1", url: "assets/mc_game/mentor_small.png", amount: 2,
+                    key: "star1", url: "assets/mc_game/mentor_small.png",
                     audio: {
                         collect: { key: "star1_collect", url: "assets/mc_game/collect_coin.wav" }
-                    }
+                    },
+                    positions: [{ x: 400, y: 1200 }]
                 },
                 {
-                    key: "star2", url: "assets/mc_game/advisor_small.png", amount: 2,
+                    key: "star2", url: "assets/mc_game/advisor_small.png",
                     audio: {
                         collect: { key: "star1_collect", url: "assets/mc_game/collect_coin.wav" }
-                    }
+                    }, positions: [{ x: 300, y: 700 }]
                 },
                 {
-                    key: "star3", url: "assets/mc_game/investor_small.png", amount: 2,
+                    key: "star3", url: "assets/mc_game/investor_small.png",
                     audio: {
                         collect: { key: "star1_collect", url: "assets/mc_game/collect_coin.wav" }
-                    }
+                    }, positions: [{ x: 1400, y: 1200 }]
                 },
                 {
-                    key: "star4", url: "assets/mc_game/international_small.png", amount: 2,
+                    key: "star4", url: "assets/mc_game/international_small.png",
                     audio: {
                         collect: { key: "star1_collect", url: "assets/mc_game/collect_coin.wav" }
-                    }
+                    }, positions: [{ x: 1400, y: 200 }]
                 }
             ],
             bullet: {
@@ -37,11 +38,11 @@ module.exports =
                     hit: { key: "bullet_hit", url: "assets/oh_no.wav" }
                 }
             },
-            enemy: {
+            enemies: [{
                 speed: 200,
-                key: "enemy", url: "assets/mc_game/maor_horizontal.png", frameWidth: 482, frameHeight: 498, amount: 3
-
-            },
+                key: "enemy", url: "assets/mc_game/maor_horizontal.png", frameWidth: 482, frameHeight: 498
+                , positions: [{ x: 800, y: 1400 }, { x: 300, y: 700 }, { x: 1400, y: 1200 }, { x: 1400, y: 200 }]
+            }],
             hero: {
                 speed: 300,
                 x: 32, y: 1450,
