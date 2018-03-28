@@ -13,12 +13,12 @@ function preload() {
     game.load.image(data.assets.endStage.key, data.assets.endStage.url);
     game.load.spritesheet(data.assets.hero.key, data.assets.hero.url, data.assets.hero.frameWidth, data.assets.hero.frameHeight);
     data.assets.enemies.forEach(function (enemy) {
-        game.load.spritesheet(enemy.key, enemy.url,enemy.frameWidth, enemy.frameHeight);
+        game.load.spritesheet(enemy.key, enemy.url, enemy.frameWidth, enemy.frameHeight);
     });
     game.load.spritesheet(data.assets.enemies[0].key, data.assets.enemies[0].url);
     game.load.audio(data.assets.bullet.audio.firing.key, data.assets.bullet.audio.firing.url);
     game.load.audio(data.assets.bullet.audio.hit.key, data.assets.bullet.audio.hit.url);
-    game.load.audio(data.assets.soundtrack.key, data.assets.soundtrack.url);
+ //   game.load.audio(data.assets.soundtrack.key, data.assets.soundtrack.url);
     game.load.audio(data.assets.objects[0].audio.collect.key, data.assets.objects[0].audio.collect.url);
 
 
@@ -47,8 +47,8 @@ var layer;
 var score = 0;
 var scoreText;
 var endPoint;
-
-
+var leftKey;
+var rightKey;
 this.pad;
 
 this.stick;
@@ -57,13 +57,12 @@ this.buttonA;
 this.buttonB;
 
 
-
 function create() {
     game.scale.forceOrientation(true);
     game.scale.pageAlignHorizontally = true;
     game.physics.startSystem(Phaser.Physics.ARCADE);
-    soundtrack = game.add.audio(data.assets.soundtrack.key);
-    soundtrack.loopFull(0.2);
+  //  soundtrack = game.add.audio(data.assets.soundtrack.key);
+  //  soundtrack.loopFull(0.2);
 
 
     // game.add.tileSprite(0, 0, (data.assets.tilemap.width / data.assets.tilemap.height) * window.innerHeight * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio, data.assets.background.key).alpha = 0.6;
@@ -85,9 +84,22 @@ function create() {
 
     this.stick = this.pad.addDPad(0, 0, 200, 'dpad');
     this.stick.alignBottomLeft(0);
+    spaceBar = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+    spaceBar.onDown.add(jump, this);
+
+    sKey = game.input.keyboard.addKey(Phaser.KeyCode.S);
+    sKey.onDown.add(shootBullet, this);
+
+
+    leftKey = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
+    rightKey = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
+
+   
+
 
     this.buttonA = this.pad.addButton(window.innerWidth - 100, window.innerHeight - 100, 'dpad', 'button1-up', 'button1-down');
     this.buttonA.onDown.add(shootBullet, this);
+
 
     this.buttonB = this.pad.addButton(window.innerWidth - 250, window.innerHeight - 100, 'dpad', 'button2-up', 'button2-down');
     this.buttonB.onDown.add(jump, this);
@@ -115,7 +127,7 @@ function create() {
 
 
 
-    player.body.bounce.y = 0.2;
+    player.body.bounce.y = 0;
     player.body.gravity.y = 300;
     player.body.collideWorldBounds = true;
 
@@ -151,7 +163,7 @@ function create() {
     bullets.enableBody = true;
 
 
-  //  scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
+    //  scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
     firing_sound = game.add.audio(data.assets.bullet.audio.firing.key);
     hitting_sound = game.add.audio(data.assets.bullet.audio.hit.key);
     collecting_sound = game.add.audio(data.assets.objects[0].audio.collect.key);
@@ -167,16 +179,17 @@ function update() {
     game.physics.arcade.collide(enemies, layer);
     game.physics.arcade.overlap(player, stars, collectStar, null, this);
     player.body.velocity.x = 0;
-    if (this.stick.isDown) {
+    if (this.stick.isDown || leftKey.isDown || rightKey.isDown) {
 
-        if (this.stick.direction === Phaser.LEFT) {
+        if ((this.stick.direction === Phaser.LEFT) || leftKey.isDown)
+        {
             player.body.velocity.x = -data.assets.hero.speed;
-           
+
             player.animations.play('walk');
             player.scale.x = -1 * (Math.abs(player.scale.x));
             direction = -1;
         }
-        else if (this.stick.direction === Phaser.RIGHT) {
+        else if (this.stick.direction === Phaser.RIGHT || rightKey.isDown) {
             player.body.velocity.x = data.assets.hero.speed;
             player.animations.play('walk');
             player.scale.x = Math.abs(player.scale.x);
@@ -187,7 +200,7 @@ function update() {
     else {
         if (player.body.onFloor())
             player.animations.play('idle');
-       
+
     }
 
 }
@@ -260,7 +273,7 @@ Bullet.prototype.update = function () {
         enemy.animations.play('die', 10, false, true).onComplete.add(function () { enemies.remove(enemy); });
         hitting_sound.play();
         score += 1;
-      //  scoreText.text = 'score: ' + score;
+        //  scoreText.text = 'score: ' + score;
 
 
 
@@ -277,7 +290,7 @@ Bullet.prototype.update = function () {
 };
 
 Enemy = function (game, x, y, key) {
-   
+
     Phaser.Sprite.call(this, game, x, y, key, 64, 64);
     game.physics.enable(this, Phaser.Physics.ARCADE);
     this.anchor.setTo(.5, .5);
@@ -300,7 +313,10 @@ Enemy = function (game, x, y, key) {
 Enemy.prototype = Object.create(Phaser.Sprite.prototype);
 Enemy.prototype.constructor = Enemy;
 Enemy.prototype.update = function () {
-    if (this.body.velocity.x == 0 && !this.isDead) {
+    if (this.isDead) {
+      //  this.animations.play('die').onComplete.add(function () { enemies.remove(this); });;
+    }
+    else if (this.body.velocity.x == 0) {
         this.animations.play('idle');
     }
     else if (this.body.velocity.x < 0) {
@@ -312,7 +328,7 @@ Enemy.prototype.update = function () {
         this.animations.play('walk');
         this.scale.x = Math.abs(this.scale.x);
     }
-    
+
 
 };
 
