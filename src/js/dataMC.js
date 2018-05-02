@@ -33,7 +33,7 @@ module.exports =
                 }
             ],
             bullet: {
-                key: "bullet", url: "assets/lips.png", audio: {
+                key: "bullet", url: "assets/lips.png", speed:450, audio: {
                     firing: { key: "bullet_firing", url: "assets/kiss.wav" },
                     hit: { key: "bullet_hit", url: "assets/oh_no.wav" }
                 }
