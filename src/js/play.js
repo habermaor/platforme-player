@@ -10,8 +10,13 @@
         var game = this.game;
         var player = this.player;
       
+        game.load.onFileComplete.add(fileComplete, this);
+
         data.assets.objects.forEach(function (object) {
             game.load.image(object.key, object.url);
+        });
+        data.assets.specialTiles && data.assets.specialTiles.forEach(function (specialTile) {
+            game.load.image(specialTile.key, specialTile.url);
         });
         game.load.image(data.assets.bullet.key, data.assets.bullet.url);
         game.load.image(data.assets.endStage.key, data.assets.endStage.url);
@@ -33,13 +38,20 @@
         game.load.image(data.assets.tileImages[0].key, data.assets.tileImages[0].url);
 
         game.load.atlas('dpad', 'assets/dpad.png', 'assets/dpad.json');
+        loaderText = this.game.add.text(16, 16, 'Your own pictures, sounds and creativity are being downloaded! Fantastic!', { fontSize: '32px', fill: '#fff' });
+        loaderProgressText = this.game.add.text(16, 100, '', { fontSize: '20px', fill: '#fff' });
 
 
+        function fileComplete(progress, cacheKey, success, totalLoaded, totalFiles) {
+            loaderProgressText.setText("Loading: " + progress + "% - " + totalLoaded + " out of " + totalFiles + " files of awsomness!");
+        }
 
 
 
     },
     create: function () {
+        loaderText.destroy();
+        loaderProgressText.destroy();
         Enemy = this.Enemy;
         var data = this.game && this.game.data;
         var game = this.game;
@@ -117,6 +129,7 @@
         player.body.gravity.y = 300;
         player.body.collideWorldBounds = true;
 
+        player.animations.add('die', this.getFramesArray(data.assets.hero.animations.jump.from, data.assets.hero.animations.jump.to), 30);
 
         player.animations.add('walk', this.getFramesArray(data.assets.hero.animations.walk.from, data.assets.hero.animations.walk.to), 30);
         player.animations.add('idle', this.getFramesArray(data.assets.hero.animations.idle.from, data.assets.hero.animations.idle.to), 30);
@@ -154,6 +167,17 @@
         hitting_sound = game.add.audio(data.assets.bullet.audio.hit.key);
         collecting_sound = game.add.audio(data.assets.objects[0].audio.collect.key);
 
+
+        speciel_tiles = game.add.group();
+        speciel_tiles.enableBody = true;
+
+        data.assets.specialTiles && data.assets.specialTiles.forEach(function (specialTile) {
+            specialTile.positions.forEach(function (position) {
+                var tile = speciel_tiles.create(position.x, position.y, specialTile.key);
+                tile.collideData = specialTile.collide;
+            });
+        });
+
     },
     update: function () {
         var data = this.game && this.game.data;
@@ -163,9 +187,10 @@
         game.physics.arcade.overlap(player, endPoint, this.win, null, this);
         game.physics.arcade.collide(stars, layer);
         game.physics.arcade.collide(enemies, layer);
+        game.physics.arcade.overlap(player, speciel_tiles, this.collideWithSpecialTile, null, this);
         game.physics.arcade.overlap(player, stars, this.collectStar, null, this);
         if (player && player.body) player.body.velocity.x = 0;
-        if (this.stick.isDown || leftKey.isDown || rightKey.isDown) {
+        if (player && player.body && !player.isDead && (this.stick.isDown || leftKey.isDown || rightKey.isDown)) {
 
             if ((this.stick.direction === Phaser.LEFT) || leftKey.isDown) {
                 player.body.velocity.x = -data.assets.hero.speed;
@@ -202,6 +227,13 @@
         var game = this.game;
         console.log("win");
         game.state.start('win');
+    },
+    lose: function () {
+        var data = this.game && this.game.data;
+        var game = this.game;
+       
+        console.log("TODO - lose stuff, cool animation and lose stage");
+       // game.state.start('lose');
     },
     jump: function () {
         var player = this.player;
@@ -257,7 +289,49 @@
         }
     },
 
+    collideWithSpecialTile: function (player, tile) {
+        _self = this;
+        if (tile.collideData.with == "hero" || tile.collideData.with == "all") {
+            switch (tile.collideData.effect.property) {
+                case "jetpack":
+                    if (player.body.gravity.y != tile.collideData.effect.value.gravity) {
+                        let originalGravity = player.body.gravity.y;
+                        player.body.gravity.y = tile.collideData.effect.value.gravity;                
+                        this.game.time.events.add(tile.collideData.effect.value.time, function () { player.body.gravity.y = originalGravity }, this).autoDestroy = true;
+                    }
+                    break;
+                case "portal":
+                    player.body.x = tile.collideData.effect.value.x;
+                    player.body.y = tile.collideData.effect.value.y;
+                    break;
+                case "jumper":
+                    player.body.velocity.setTo(tile.collideData.effect.value.x,tile.collideData.effect.value.y)
+                    break;
+                case "sizer":
+                    player.scale.setTo(tile.collideData.effect.value.width, tile.collideData.effect.value.height)
+                    break;
+                case "killer":
+                    if (!player.isDead) {
+                        player.isDead = true;
+                        player.body.velocity.x = 0;
+                       // enemy.animations.play('die', 10, false, true).onComplete.add(function () { enemies.remove(enemy); });
 
+                        player.animations.play(tile.collideData.effect.value.customAnimation ? tile.collideData.effect.value.customAnimation : 'idle', 30, false, true).onComplete.add(function () { _self.lose() });
+                      //  player.destroy();
+                        hitting_sound.play();
+                      
+                    }
+                    break;
+                case "speeder":
+                    player.body.velocity.x = 1000;
+                    player.body.moveTo(1000,1000,360)
+                    break;
+                  
+                default:
+                    break;
+               
+            }}
+    },
 
 
 
