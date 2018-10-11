@@ -24,6 +24,8 @@
         .catch(
         (reason) => {
             console.log(reason);
+            this.game.data = defauldData;
+            console.log('wtf', this.game.data);
             this.game.state.start('play');
            
         })

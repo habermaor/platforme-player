@@ -1,4 +1,4 @@
-﻿
+﻿/*note! this is only in use for testing the player app, the real default comes from the editor app!*/
 module.exports =
     {
 
@@ -42,11 +42,29 @@ module.exports =
                 speed: 200,
                 key: "enemy", url: "assets/mc_game/maor_horizontal.png", frameWidth: 482, frameHeight: 498
                 , positions: [{ x: 800, y: 1400 }, { x: 300, y: 700 }, { x: 1400, y: 1200 }, { x: 1400, y: 200 }]
-            }],
+            }],           
+          
             hero: {
                 speed: 300,
                 x: 32, y: 1450,
-                key: "hero", url: "assets/mc_game/snap_2d_sprite.png", frameWidth: 415, frameHeight: 536, animations: { walk: { from: 20, to: 29 }, jump: { from: 10, to: 19 }, idle: { from: 0, to: 9 } }
+                scale:0.3,
+                key: "hero", url: "assets/mc_game/snap_2d_sprite.png",
+                frameWidth: 415,
+                frameHeight: 536,
+                animations: {
+                    walk: {
+                        from: 20,
+                        to: 29
+                    },
+                    jump: {
+                        from: 10,
+                        to: 19
+                    },
+                    idle: {
+                        from: 0,
+                        to: 9
+                    }
+                },
             },
             specialTiles: [
                   //    {

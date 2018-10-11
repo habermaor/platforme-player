@@ -1,7 +1,7 @@
 ﻿
 module.exports =
     {
-
+       
         assets: {
             background: { key: "sky", url: "assets/sky.png" },
             ground: { key: "ground", url: "assets/platform.png" },
