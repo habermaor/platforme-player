@@ -40,7 +40,25 @@ module.exports =
             },
             enemies: [{
                 speed: 200,
-                key: "enemy", url: "assets/mc_game/maor_horizontal.png", frameWidth: 482, frameHeight: 498
+                key: "enemy", url: "assets/mc_game/maor_horizontal.png", frameWidth: 482, frameHeight: 498,
+                animations: {
+                    walk: {
+                        from: 20,
+                        to: 29
+                    },
+                    jump: {
+                        from: 20,
+                        to: 29
+                    },
+                    die: {
+                        from: 0,
+                        to: 9
+                    },
+                    idle: {
+                        from: 10,
+                        to: 19
+                    }
+                }
                 , positions: [{ x: 800, y: 1400 }, { x: 300, y: 700 }, { x: 1400, y: 1200 }, { x: 1400, y: 200 }]
             }],           
           

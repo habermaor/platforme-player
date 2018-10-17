@@ -13,7 +13,7 @@
             const xhr = new XMLHttpRequest();            
             xhr.open("GET", '/api/item/' + gameId);
             xhr.onload = () => resolve(xhr.responseText);
-            xhr.onerror = () => { this.game.data = defauldData; console.log('wtf', this.game.data); this.game.state.start('play'); reject(xhr.statusText); }
+            xhr.onerror = () => { this.game.data = defauldData; this.game.state.start('play'); reject(xhr.statusText); }
             xhr.send();
         })
         getGame.then(
@@ -25,7 +25,6 @@
         (reason) => {
             console.log(reason);
             this.game.data = defauldData;
-            console.log('wtf', this.game.data);
             this.game.state.start('play');
            
         })
