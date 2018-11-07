@@ -116,7 +116,7 @@
         this.player = game.add.sprite(data.assets.hero.x, data.assets.hero.y, data.assets.hero.key);
         var player = this.player;
         player.anchor.setTo(.5, .5);
-        player.scale.setTo(data.assets.hero.scale || 0.3, data.assets.hero.scale || 0.3);
+        //player.scale.setTo(data.assets.hero.scale || 0.3, data.assets.hero.scale || 0.3);
         game.physics.arcade.enable(player);
 
 
