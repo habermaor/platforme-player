@@ -146,7 +146,9 @@ module.exports =
              //    positions: [{ x: 200, y: 1400 }]
              //}
             ],
-            endStage: { key: "endStage", url: "assets/mc_game/masschallenge_il.jpg", x: 1330, y: 250},
+           // endStage: { key: "endStage", url: "assets/trophy.png", x: 1330, y: 250 },
+            endStage: { key: "endStage", url: "assets/trophy.png", x: 1330, y: 250 },
+
             tilemap: { key: "tilemap", url: "assets/mc_game/office2.json", width: 52, height: 52/*TODO - put all the tilemap data here, instead of external file*/ },
             tileImages: [{ key: "b3ad8f", url: "assets/mc_game/b3ad8f.png" }]/*TODO - no need in this. images should be taken from map json*/
         },

@@ -70,8 +70,8 @@
         map = game.add.tilemap(data.assets.tilemap.key);
         game.world.setBounds(0, 0, (data.assets.tilemap.width / data.assets.tilemap.height) * window.innerHeight * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio);
         endPoint = game.add.sprite(data.assets.endStage.x, data.assets.endStage.y, data.assets.endStage.key);
-        endPoint.scale.setTo(0.5);
         endPoint.enableBody = true;
+        game.physics.arcade.enable(endPoint);
 
 
 
@@ -116,7 +116,6 @@
         this.player = game.add.sprite(data.assets.hero.x, data.assets.hero.y, data.assets.hero.key);
         var player = this.player;
         player.anchor.setTo(.5, .5);
-        //player.scale.setTo(data.assets.hero.scale || 0.3, data.assets.hero.scale || 0.3);
         game.physics.arcade.enable(player);
 
 
@@ -124,8 +123,7 @@
         game.camera.follow(player);
         game.camera.follow(player, Phaser.Camera.FOLLOW_PLATFORMER);
 
-
-
+        
         player.body.bounce.y = 0;
         player.body.gravity.y = 300;
         player.body.collideWorldBounds = true;
@@ -184,7 +182,7 @@
         var data = this.game && this.game.data;
         var game = this.game;
         var player = this.player;
-        game.physics.arcade.collide(player, layer, this.collideWithLayer, null, this);
+        game.physics.arcade.collide(player, layer);
         game.physics.arcade.overlap(player, endPoint, this.win, null, this);
         game.physics.arcade.collide(stars, layer);
         game.physics.arcade.collide(enemies, layer);
@@ -216,17 +214,10 @@
 
     },
 
-    collideWithLayer: function (player, tile) {
-        var data = this.game && this.game.data;
-        var game = this.game;
-        if (tile.x == 124)
-            //todo - add an object to overlap with for ending (gate or whatever the user is uploading)
-            game.state.start('win');
-    },
+   
     win: function () {
         var data = this.game && this.game.data;
         var game = this.game;
-        console.log("win");
         game.state.start('win');
     },
     lose: function () {

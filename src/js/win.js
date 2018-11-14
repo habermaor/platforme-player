@@ -1,13 +1,13 @@
 ﻿module.exports = {
     preload: function () {
-        this.game.load.image('win_bg', "assets/mc_game/Winner.png")
-
+        this.game.load.image('win_bg', this.game.data && this.game.data.assets
+            && this.game.data.assets.winImage && this.game.data.assets.winImage.url
+            || "assets/gameover.png")
     },
     create: function () {
+        var data = this.game.data;
         this.game.plugins.removeAll();
-        //uncomment this once I olve the state issue
-        // this.game.add.tileSprite(0, 0, (data.assets.tilemap.width / data.assets.tilemap.height) * window.innerHeight * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio, data.assets.background.key).alpha = 0.6;
+        this.game.add.tileSprite(0, 0, (data.assets.tilemap.width / data.assets.tilemap.height) * window.innerHeight * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio, 'win_bg');
 
-        //var winLabel = this.add.text(100, 100, "You Won! Platforme Rulezzz", { font: "50px Arial", fill: "#ffffff" });
     }
 }
