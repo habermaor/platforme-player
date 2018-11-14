@@ -146,7 +146,7 @@ module.exports =
              //    positions: [{ x: 200, y: 1400 }]
              //}
             ],
-           // endStage: { key: "endStage", url: "assets/trophy.png", x: 1330, y: 250 },
+     
             endStage: { key: "endStage", url: "assets/trophy.png", x: 1330, y: 250 },
 
             tilemap: { key: "tilemap", url: "assets/mc_game/office2.json", width: 52, height: 52/*TODO - put all the tilemap data here, instead of external file*/ },
