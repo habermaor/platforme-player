@@ -14,6 +14,8 @@ var firing_sound;
 var hitting_sound;
 var soundtrack;
 var collecting_sound;
+var jump_sound;
+
 var player;
 var bullets;
 var enemies;

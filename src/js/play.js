@@ -27,6 +27,8 @@
         game.load.spritesheet(data.assets.enemies[0].key, data.assets.enemies[0].url);
         game.load.audio(data.assets.bullet.audio.firing.key, data.assets.bullet.audio.firing.url);
         game.load.audio(data.assets.bullet.audio.hit.key, data.assets.bullet.audio.hit.url);
+        game.load.audio(data.assets.hero.audio.jump.key, data.assets.hero.audio.jump.url);
+
         //   game.load.audio(data.assets.soundtrack.key, data.assets.soundtrack.url);
         game.load.audio(data.assets.objects[0].audio.collect.key, data.assets.objects[0].audio.collect.url);
 
@@ -116,6 +118,7 @@
         this.player = game.add.sprite(data.assets.hero.x, data.assets.hero.y, data.assets.hero.key);
         var player = this.player;
         player.anchor.setTo(.5, .5);
+        player.scale.setTo(data.assets.hero.scale || 1, data.assets.hero.scale || 1);
         game.physics.arcade.enable(player);
 
 
@@ -125,7 +128,7 @@
 
         
         player.body.bounce.y = 0;
-        player.body.gravity.y = 300;
+        player.body.gravity.y = data.assets.hero.gravity || 300;
         player.body.collideWorldBounds = true;
 
         player.animations.add('die', this.getFramesArray(data.assets.hero.animations.jump.from, data.assets.hero.animations.jump.to), 30);
@@ -165,7 +168,9 @@
         firing_sound = game.add.audio(data.assets.bullet.audio.firing.key);
         hitting_sound = game.add.audio(data.assets.bullet.audio.hit.key);
         collecting_sound = game.add.audio(data.assets.objects[0].audio.collect.key);
+        jump_sound = game.add.audio(data.assets.hero.audio.jump.key);
 
+        
 
         speciel_tiles = game.add.group();
         speciel_tiles.enableBody = true;
@@ -231,6 +236,7 @@
         var player = this.player;
         if (player && player.body && player.body.onFloor()) {
             player.body.velocity.y = -350;
+            jump_sound.play();
             player.animations.play('jump');
         }
     },

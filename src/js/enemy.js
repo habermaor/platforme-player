@@ -12,7 +12,7 @@ module.exports = class Enemy extends Phaser.Sprite {
        // Phaser.Sprite.call(this, game, x, y, key, 64, 64);
         game.physics.enable(this, Phaser.Physics.ARCADE);
         this.anchor.setTo(.5, .5);
-      //  this.scale.setTo(data.assets.enemies[0].scale || 0.3, data.assets.enemies[0].scale || 0.3);
+        this.scale.setTo(data.assets.enemies[0].scale || 1, data.assets.enemies[0].scale || 1);
 
         this.collideWorldBounds = true;
         this.enableBody = true;
@@ -30,7 +30,7 @@ module.exports = class Enemy extends Phaser.Sprite {
 
         this.animations.currentFrame = 0;
 
-        this.body.gravity.y = 800;
+        this.body.gravity.y = data.assets.enemies[0].gravity || 800;
         this.body.bounce.y = 0;
         this.body.bounce.x = 1;
         this.body.collideWorldBounds = true;
