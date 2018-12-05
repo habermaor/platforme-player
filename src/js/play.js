@@ -29,7 +29,7 @@
         game.load.audio(data.assets.bullet.audio.hit.key, data.assets.bullet.audio.hit.url);
         game.load.audio(data.assets.hero.audio.jump.key, data.assets.hero.audio.jump.url);
 
-        //   game.load.audio(data.assets.soundtrack.key, data.assets.soundtrack.url);
+        game.load.audio(data.assets.soundtrack.key, data.assets.soundtrack.url);
         game.load.audio(data.assets.objects[0].audio.collect.key, data.assets.objects[0].audio.collect.url);
 
 
@@ -62,12 +62,14 @@
         game.scale.forceOrientation(true);
         game.scale.pageAlignHorizontally = true;
         game.physics.startSystem(Phaser.Physics.ARCADE);
-        //  soundtrack = game.add.audio(data.assets.soundtrack.key);
-        //  soundtrack.loopFull(0.2);
-
+        if (data.assets.soundtrack.key) {
+            soundtrack = game.add.audio(data.assets.soundtrack.key);
+            soundtrack.loopFull(0.5);
+        }
 
         // game.add.tileSprite(0, 0, (data.assets.tilemap.width / data.assets.tilemap.height) * window.innerHeight * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio, data.assets.background.key).alpha = 0.6;
-        game.add.tileSprite(0, 0, 1664, 1664, data.assets.background.key).alpha = 0.6;
+        game.stage.backgroundColor = "#fff";
+        game.add.tileSprite(0, 0, 1664, 1664, data.assets.background.key).alpha = 0.4;
 
         map = game.add.tilemap(data.assets.tilemap.key);
         game.world.setBounds(0, 0, (data.assets.tilemap.width / data.assets.tilemap.height) * window.innerHeight * window.devicePixelRatio, window.innerHeight * window.devicePixelRatio);

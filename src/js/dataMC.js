@@ -69,6 +69,7 @@ module.exports =
                 key: "hero", url: "assets/mc_game/snap_2d_sprite.png",
                 frameWidth: 415,
                 frameHeight: 536,
+                audio: {jump:""},
                 animations: {
                     walk: {
                         from: 20,
