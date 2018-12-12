@@ -41,6 +41,12 @@ module.exports =
             enemies: [{
                 speed: 200,
                 key: "enemy", url: "assets/mc_game/maor_horizontal.png", frameWidth: 482, frameHeight: 498,
+                bullet: {
+                    key: "enemy_bullet", url: "assets/bomb.png", speed: 450, audio: {
+                        firing: { key: "enemy_bullet_firing", url: "assets/Fire_in_the_Hole.mp3" },
+                        hit: { key: "enemy_bullet_hit", url: "assets/Explosion.mp3" }
+                    }
+                },
                 animations: {
                     walk: {
                         from: 20,

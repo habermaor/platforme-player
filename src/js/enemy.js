@@ -1,4 +1,5 @@
-﻿
+﻿Bullet = require('./enemyBullet'),
+
 module.exports = class Enemy extends Phaser.Sprite {
     constructor(game, x, y, key) {
         function getFramesArray(start, end) {
@@ -34,11 +35,21 @@ module.exports = class Enemy extends Phaser.Sprite {
         this.body.bounce.y = 0;
         this.body.bounce.x = 1;
         this.body.collideWorldBounds = true;
+        this.bullets = game.add.group();
+        this.bullets.enableBody = true;
         // this.body.velocity.x = 30 + Math.random() * 50;
     };
    
 
-
+    attack() {
+        let data = this.game && this.game.data;
+        let game = this.game;
+        let direction;
+        this.body.velocity.x > 0 ? direction = 1 : direction = -1;
+        var bullet = new Bullet(game, this.x + 10, this.y + 10, this, direction, data.assets.enemies[0].bullet.speed, data.assets.enemies[0].bullet.key);
+        this.bullets.add(bullet);
+        firing_sound.play();
+    }
 
     update () {
         if (this.isDead) {

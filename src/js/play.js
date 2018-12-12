@@ -8,8 +8,8 @@
 
         var data = this.game && this.game.data;
         var game = this.game;
-        var player = this.player;
-      
+        var player = this.game.globals.player;
+
         game.load.onFileComplete.add(fileComplete, this);
 
         data.assets.objects.forEach(function (object) {
@@ -23,11 +23,17 @@
         game.load.spritesheet(data.assets.hero.key, data.assets.hero.url, data.assets.hero.frameWidth, data.assets.hero.frameHeight);
         data.assets.enemies.forEach(function (enemy) {
             game.load.spritesheet(enemy.key, enemy.url, enemy.frameWidth, enemy.frameHeight);
+            game.load.image(enemy.bullet.key, enemy.bullet.url);
+
+            game.load.audio(enemy.bullet.audio.firing.key, enemy.bullet.audio.firing.url);
+            game.load.audio(enemy.bullet.audio.hit.key, enemy.bullet.audio.hit.url);
         });
         game.load.spritesheet(data.assets.enemies[0].key, data.assets.enemies[0].url);
         game.load.audio(data.assets.bullet.audio.firing.key, data.assets.bullet.audio.firing.url);
         game.load.audio(data.assets.bullet.audio.hit.key, data.assets.bullet.audio.hit.url);
         game.load.audio(data.assets.hero.audio.jump.key, data.assets.hero.audio.jump.url);
+
+
 
         game.load.audio(data.assets.soundtrack.key, data.assets.soundtrack.url);
         game.load.audio(data.assets.objects[0].audio.collect.key, data.assets.objects[0].audio.collect.url);
@@ -58,7 +64,7 @@
         Enemy = this.Enemy;
         var data = this.game && this.game.data;
         var game = this.game;
-     
+
         game.scale.forceOrientation(true);
         game.scale.pageAlignHorizontally = true;
         game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -116,9 +122,8 @@
 
         layer = map.createLayer('office_tile');//this is the layer name from Tiled. todo - make this dynamic?
         layer.resizeWorld();
-
-        this.player = game.add.sprite(data.assets.hero.x, data.assets.hero.y, data.assets.hero.key);
-        var player = this.player;
+        game.globals.player = game.add.sprite(data.assets.hero.x, data.assets.hero.y, data.assets.hero.key);
+        var player = game.globals.player;
         player.anchor.setTo(.5, .5);
         player.scale.setTo(data.assets.hero.scale || 1, data.assets.hero.scale || 1);
         game.physics.arcade.enable(player);
@@ -128,7 +133,7 @@
         game.camera.follow(player);
         game.camera.follow(player, Phaser.Camera.FOLLOW_PLATFORMER);
 
-        
+
         player.body.bounce.y = 0;
         player.body.gravity.y = data.assets.hero.gravity || 300;
         player.body.collideWorldBounds = true;
@@ -158,10 +163,18 @@
         data.assets.enemies.forEach(function (bad) {
             bad.positions.forEach(function (position) {
                 var enemy = new Enemy(game, position.x, position.y, bad.key);
+                enemy.attackSound = game.add.audio(bad.bullet.audio.firing.key);
+                enemy.HitSound = game.add.audio(bad.bullet.audio.hit.key);
                 enemies.add(enemy);
             });
+            
+          
+
         });
         game.time.events.loop(Phaser.Timer.SECOND * 2, this.turnRandomEnemy, this);
+        game.time.events.loop(Phaser.Timer.SECOND * 3, this.randomEnemyAttack, this);
+
+        
         bullets = game.add.group();
         bullets.enableBody = true;
 
@@ -172,7 +185,7 @@
         collecting_sound = game.add.audio(data.assets.objects[0].audio.collect.key);
         jump_sound = game.add.audio(data.assets.hero.audio.jump.key);
 
-        
+
 
         speciel_tiles = game.add.group();
         speciel_tiles.enableBody = true;
@@ -188,7 +201,8 @@
     update: function () {
         var data = this.game && this.game.data;
         var game = this.game;
-        var player = this.player;
+        var player = this.game.globals.player;
+
         game.physics.arcade.collide(player, layer);
         game.physics.arcade.overlap(player, endPoint, this.win, null, this);
         game.physics.arcade.collide(stars, layer);
@@ -221,7 +235,7 @@
 
     },
 
-   
+
     win: function () {
         var data = this.game && this.game.data;
         var game = this.game;
@@ -230,12 +244,13 @@
     lose: function () {
         var data = this.game && this.game.data;
         var game = this.game;
-       
+
         console.log("TODO - lose stuff, cool animation and lose stage");
-       // game.state.start('lose');
+        // game.state.start('lose');
     },
     jump: function () {
-        var player = this.player;
+        var player = this.game.globals.player;
+
         if (player && player.body && player.body.onFloor()) {
             player.body.velocity.y = -350;
             jump_sound.play();
@@ -268,6 +283,14 @@
 
         }
     },
+    randomEnemyAttack: function () {
+        var data = this.game && this.game.data;
+        var game = this.game;
+        enemy = enemies.children[Math.floor(Math.random() * enemies.children.length)]
+        if (enemy) {
+            enemy.attack();
+        }
+    },
     collectStar: function (player, star) {
         var data = this.game && this.game.data;
         var game = this.game;
@@ -279,7 +302,8 @@
 
     shootBullet: function () {
         Bullet = this.Bullet;
-        player = this.player;
+        var player = this.game.globals.player;
+
         var data = this.game && this.game.data;
         var game = this.game;
         if (bullets.length < 5) {
@@ -296,7 +320,7 @@
                 case "jetpack":
                     if (player.body.gravity.y != tile.collideData.effect.value.gravity) {
                         let originalGravity = player.body.gravity.y;
-                        player.body.gravity.y = tile.collideData.effect.value.gravity;                
+                        player.body.gravity.y = tile.collideData.effect.value.gravity;
                         this.game.time.events.add(tile.collideData.effect.value.time, function () { player.body.gravity.y = originalGravity }, this).autoDestroy = true;
                     }
                     break;
@@ -305,7 +329,7 @@
                     player.body.y = tile.collideData.effect.value.y;
                     break;
                 case "jumper":
-                    player.body.velocity.setTo(tile.collideData.effect.value.x,tile.collideData.effect.value.y)
+                    player.body.velocity.setTo(tile.collideData.effect.value.x, tile.collideData.effect.value.y)
                     break;
                 case "sizer":
                     player.scale.setTo(tile.collideData.effect.value.width, tile.collideData.effect.value.height)
@@ -314,23 +338,24 @@
                     if (!player.isDead) {
                         player.isDead = true;
                         player.body.velocity.x = 0;
-                       // enemy.animations.play('die', 10, false, true).onComplete.add(function () { enemies.remove(enemy); });
+                        // enemy.animations.play('die', 10, false, true).onComplete.add(function () { enemies.remove(enemy); });
 
                         player.animations.play(tile.collideData.effect.value.customAnimation ? tile.collideData.effect.value.customAnimation : 'idle', 30, false, true).onComplete.add(function () { _self.lose() });
-                      //  player.destroy();
+                        //  player.destroy();
                         hitting_sound.play();
-                      
+
                     }
                     break;
                 case "speeder":
                     player.body.velocity.x = 1000;
-                    player.body.moveTo(1000,1000,360)
+                    player.body.moveTo(1000, 1000, 360)
                     break;
-                  
+
                 default:
                     break;
-               
-            }}
+
+            }
+        }
     },
 
 
